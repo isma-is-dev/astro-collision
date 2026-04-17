@@ -36,11 +36,12 @@ def load_planet_data(filename):
         A1_P = np.array(f["PartType0/Pressures"][()]) * file_to_SI.P
         A1_u = np.array(f["PartType0/InternalEnergies"][()]) * file_to_SI.u
         A1_mat_id = np.array(f["PartType0/MaterialIDs"][()])
+        A1_s = np.array(f["PartType0/Entropies"][()]) * file_to_SI.s
 
-        return A2_pos, A1_m, A1_h, A1_rho, A1_P, A1_u, A1_mat_id, file_to_SI
+        return A2_pos, A1_m, A1_h, A1_rho, A1_P, A1_u, A1_mat_id, A1_s, file_to_SI
 
 # Cargar datos del planeta
-A2_pos_t, A1_m_t, A1_h_t, A1_rho_t, A1_P_t, A1_u_t, A1_mat_id_t, file_to_SI = load_planet_data(
+A2_pos_t, A1_m_t, A1_h_t, A1_rho_t, A1_P_t, A1_u_t, A1_mat_id_t, A1_s_t, file_to_SI = load_planet_data(
     "earth_IC.hdf5"
 )
 
@@ -54,6 +55,7 @@ A1_rho_i = A1_rho_t  # Densidad se mantiene
 A1_P_i = A1_P_t
 A1_u_i = A1_u_t
 A1_mat_id_i = A1_mat_id_t
+A1_s_i = A1_s_t  # Entropía se mantiene
 
 # Calcular masas totales
 M_t = np.sum(A1_m_t)
@@ -110,6 +112,7 @@ with h5py.File(output_file, "w") as f:
         A1_P=np.append(A1_P_t, A1_P_i),
         A1_u=np.append(A1_u_t, A1_u_i),
         A1_mat_id=np.append(A1_mat_id_t, A1_mat_id_i),
+        A1_s=np.append(A1_s_t, A1_s_i),
         boxsize=100 * R_earth,
         file_to_SI=woma.Conversions(m=1e24, l=1e6, t=1),
     )

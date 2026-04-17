@@ -14,14 +14,14 @@ import numpy as np
 M_earth = 5.972e24
 R_earth = 6.371e6
 
-# Definir planeta simple de 1 capa (basalto) para empezar
+# Definir planeta simple de 1 capa (forsterite ANEOS) para soportar entropía
 planet = woma.Planet(
     name="earth_like",
-    A1_mat_layer=["Til_basalt"],  # material: basalto Tillotson
-    A1_T_rho_type=["power=0"],    # temperatura constante
-    P_s=1e5,                      # presión superficial en Pa
-    T_s=500,                      # temperatura superficial en K
-    M=M_earth,                    # masa en kg
+    A1_mat_layer=["ANEOS_forsterite"],  # material: forsterite ANEOS (soporta entropía)
+    A1_T_rho_type=["adiabatic"],        # perfil adiabático
+    P_s=1e5,                            # presión superficial en Pa
+    T_s=2000,                           # temperatura superficial en K
+    M=M_earth,                          # masa en kg
 )
 
 # Cargar tablas de EoS
@@ -47,6 +47,7 @@ particles.save(
     output_file,
     boxsize=10 * R_earth,
     file_to_SI=file_to_SI,
+    do_entropies=True,
 )
 
 print(f"Partículas guardadas en {output_file}")
