@@ -9,6 +9,7 @@ from pathlib import Path
 
 import numpy as np
 import woma
+import seagen
 
 from planetary_utils import (
     DEFAULT_FILE_TO_SI,
@@ -19,6 +20,17 @@ from planetary_utils import (
     recenter_two_body_system,
     save_combined_snapshot,
 )
+
+original_gen_sphere = seagen.GenSphere.__init__
+
+
+def patched_gen_sphere(self, *args, **kwargs):
+    if 'Di_param_A1_misc_prof' in kwargs:
+        del kwargs['Di_param_A1_misc_prof']
+    return original_gen_sphere(self, *args, **kwargs)
+
+
+seagen.GenSphere.__init__ = patched_gen_sphere
 
 
 def parse_args():

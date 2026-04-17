@@ -46,24 +46,16 @@ def build_differentiated_planet(
     planet = woma.Planet(
         name=name,
         A1_mat_layer=[core_material, mantle_material],
-        A1_T_rho_type=["adiabatic", "adiabatic"],
+        A1_T_rho_type=["power=0", "power=0"],
         P_s=surface_pressure_pa,
         T_s=surface_temperature_k,
         M=mass_kg,
         R=radius_guess_m,
         A1_M_layer=[core_mass_fraction * mass_kg, (1.0 - core_mass_fraction) * mass_kg],
-        A1_R_layer=[0.5 * radius_guess_m, radius_guess_m],
         verbosity=verbosity,
     )
 
-    if radius_m is None:
-        planet.gen_prof_L2_find_R_R1_given_M1_M2(
-            R_min=0.6 * radius_guess_m,
-            R_max=1.4 * radius_guess_m,
-            verbosity=verbosity,
-        )
-    else:
-        planet.gen_prof_L2_find_R1_given_M_R(verbosity=verbosity)
+    planet.gen_prof_L2_find_R1_given_M_R(verbosity=verbosity)
 
     return planet
 
@@ -94,7 +86,10 @@ def recenter_two_body_system(
 
 def ensure_entropies(particles):
     if not hasattr(particles, "A1_s"):
-        particles.calculate_entropies()
+        try:
+            particles.calculate_entropies()
+        except ValueError:
+            return None
     return particles.A1_s
 
 
@@ -116,9 +111,10 @@ def save_combined_snapshot(
 
     entropies = None
     if include_entropies:
-        entropies = np.concatenate(
-            [ensure_entropies(target_particles), ensure_entropies(impactor_particles)]
-        )
+        target_entropies = ensure_entropies(target_particles)
+        impactor_entropies = ensure_entropies(impactor_particles)
+        if target_entropies is not None and impactor_entropies is not None:
+            entropies = np.concatenate([target_entropies, impactor_entropies])
 
     with h5py.File(output_path, "w") as handle:
         woma.save_particle_data(
