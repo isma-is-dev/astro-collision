@@ -4,7 +4,6 @@ Simulación de colisión planetaria con PySPH usando GPU
 """
 
 import sys
-sys.path.insert(0, '/home/ismaelmartin/.codex/astro-emulator/venv/lib/python3.12/site-packages')
 
 import numpy as np
 import h5py

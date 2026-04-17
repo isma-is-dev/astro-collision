@@ -5,7 +5,6 @@ Siguiendo el roadmap FASE 2.2
 """
 
 import sys
-sys.path.insert(0, '/home/ismaelmartin/.codex/astro-emulator/venv/lib/python3.12/site-packages')
 
 import numpy as np
 import h5py

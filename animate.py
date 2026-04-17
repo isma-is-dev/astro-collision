@@ -5,7 +5,6 @@ Genera un GIF animado o MP4 de los snapshots de SWIFT
 """
 
 import sys
-sys.path.insert(0, '/home/ismaelmartin/.codex/astro-emulator/venv/lib/python3.12/site-packages')
 
 import numpy as np
 import matplotlib
@@ -13,12 +12,12 @@ matplotlib.use('Agg')  # Usar backend no-interactivo
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.animation as animation
-import swiftsimio
+import h5py
 import glob
 import os
 
 # Configuración
-SNAPSHOT_DIR = "simulation/snapshots"
+SNAPSHOT_DIR = "simulation_output"
 OUTPUT_FILE = "collision_animation.gif"
 FIGURE_SIZE = (10, 8)
 PARTICLE_SIZE = 0.5
@@ -31,12 +30,12 @@ def load_snapshots():
     if not os.path.exists(SNAPSHOT_DIR):
         print(f"Directorio de snapshots no encontrado: {SNAPSHOT_DIR}")
         return []
-    
-    snapshots = sorted(glob.glob(os.path.join(SNAPSHOT_DIR, "impact_*.hdf5")))
+
+    snapshots = sorted(glob.glob(os.path.join(SNAPSHOT_DIR, "snapshot_*.hdf5")))
     if not snapshots:
         print("No se encontraron snapshots")
         return []
-    
+
     return snapshots
 
 def create_animation(snapshots, output_file=OUTPUT_FILE, skip=1):
@@ -47,16 +46,20 @@ def create_animation(snapshots, output_file=OUTPUT_FILE, skip=1):
         print(f"Usando {len(snapshots)} frames (saltando cada {skip} snapshots)")
     else:
         print(f"Creando animación con {len(snapshots)} snapshots...")
-    
+
     # Pre-cargar todos los datos en memoria para mayor velocidad
     print("Pre-cargando datos...")
     all_data = []
     for snapshot_path in snapshots:
-        data = swiftsimio.load(snapshot_path)
-        all_data.append({
-            'pos': data.gas.coordinates / 1e6,  # Convertir a R_earth
-            'rho': data.gas.densities
-        })
+        with h5py.File(snapshot_path, 'r') as f:
+            pos = f['position'][:]
+            material = f['material'][:]
+            time = f.attrs['time']
+            all_data.append({
+                'pos': pos / 6.371e6,  # Convertir a R_earth
+                'material': material,
+                'time': time
+            })
     print("Datos pre-cargados")
     
     # Configurar figura 3D
@@ -83,15 +86,16 @@ def create_animation(snapshots, output_file=OUTPUT_FILE, skip=1):
         try:
             data = all_data[frame]
             pos = data['pos']
-            rho = data['rho']
-            
+            material = data['material']
+            time = data['time']
+
             # Actualizar posiciones y colores (3D)
             scatter._offsets3d = (pos[:, 0], pos[:, 1], pos[:, 2])
-            scatter.set_array(rho)
-            
-            # Actualizar título con número de frame
-            ax.set_title(f'Colisión Planetaria - Frame {frame}/{len(all_data)-1}')
-            
+            scatter.set_array(material)
+
+            # Actualizar título con tiempo
+            ax.set_title(f'Colisión Planetaria - t={time/3600:.2f} h')
+
             return scatter,
         except Exception as e:
             print(f"Error en frame {frame}: {e}")
@@ -128,4 +132,4 @@ if __name__ == "__main__":
     if snapshots:
         create_animation(snapshots, args.output, skip=args.skip)
     else:
-        print("No se encontraron snapshots. Ejecuta SWIFT primero.")
+        print("No se encontraron snapshots. Ejecuta simple_collision.py primero.")
