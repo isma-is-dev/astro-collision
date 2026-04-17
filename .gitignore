@@ -19,6 +19,8 @@ __pycache__/
 *.log
 output_*.hdf5
 snapshot_*.hdf5
+simulation/
+SWIFT/
 
 # Visualización
 visualization_output/
