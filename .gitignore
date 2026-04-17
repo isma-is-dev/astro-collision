@@ -20,6 +20,10 @@ __pycache__/
 output_*.hdf5
 snapshot_*.hdf5
 
+# Visualización
+visualization_output/
+*.gif
+
 # Archivos temporales
 *.tmp
 *.swp
