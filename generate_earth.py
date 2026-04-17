@@ -47,7 +47,6 @@ particles.save(
     output_file,
     boxsize=10 * R_earth,
     file_to_SI=file_to_SI,
-    do_entropies=True,
 )
 
 print(f"Partículas guardadas en {output_file}")
