@@ -1,0 +1,39 @@
+# Entorno virtual
+venv/
+*.egg-info/
+.eggs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Archivos HDF5 generados (condiciones iniciales)
+*.hdf5
+*.h5
+
+# Archivos SWIFT
+*.rst
+*.log
+output_*.hdf5
+snapshot_*.hdf5
+
+# Archivos temporales
+*.tmp
+*.swp
+*~
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de compilación SWIFT
+*.o
+*.a
