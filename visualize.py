@@ -43,20 +43,15 @@ def visualize_snapshot(snapshot_path, output_path=None):
         data = swiftsimio.load(snapshot_path)
         pos = data.gas.coordinates
         rho = data.gas.densities
-        vel = data.gas.velocities
         
-        # Convertir a unidades más legibles
-        pos_km = pos / 1e5  # Convertir a km (aprox)
-        
-        # Crear figura 3D
+        # Crear figura 2D más rápida
         fig = plt.figure(figsize=FIGURE_SIZE)
-        ax = fig.add_subplot(111, projection='3d')
+        ax = fig.add_subplot(111)
         
-        # Colorear por densidad
+        # Proyección 2D (plano XY)
         scatter = ax.scatter(
-            pos[:, 0] / 1e6,  # Convertir a unidades de radio terrestre
+            pos[:, 0] / 1e6,
             pos[:, 1] / 1e6,
-            pos[:, 2] / 1e6,
             c=rho,
             cmap='viridis',
             s=PARTICLE_SIZE,
@@ -66,21 +61,17 @@ def visualize_snapshot(snapshot_path, output_path=None):
         # Configurar ejes
         ax.set_xlabel('X (R_earth)')
         ax.set_ylabel('Y (R_earth)')
-        ax.set_zlabel('Z (R_earth)')
         ax.set_title(f'Colisión Planetaria - {os.path.basename(snapshot_path)}')
+        ax.set_aspect('equal')
         
         # Añadir barra de color para densidad
         cbar = plt.colorbar(scatter, ax=ax)
         cbar.set_label('Densidad (kg/m³)')
         
-        # Configurar ángulo de vista
-        ax.view_init(elev=VIEW_ANGLE_ELEV, azim=VIEW_ANGLE_AZIM)
-        
         # Ajustar límites para centrar en la colisión
-        max_range = np.max(np.abs(pos / 1e6)) * 1.1
+        max_range = np.max(np.abs(pos[:, :2] / 1e6)) * 1.1
         ax.set_xlim(-max_range, max_range)
         ax.set_ylim(-max_range, max_range)
-        ax.set_zlim(-max_range, max_range)
         
         plt.tight_layout()
         
@@ -89,7 +80,7 @@ def visualize_snapshot(snapshot_path, output_path=None):
             os.makedirs(OUTPUT_DIR, exist_ok=True)
             output_path = os.path.join(OUTPUT_DIR, f"vis_{os.path.basename(snapshot_path)}.png")
         
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
+        plt.savefig(output_path, dpi=100, bbox_inches='tight')
         plt.close(fig)
         
         print(f"Imagen guardada: {output_path}")

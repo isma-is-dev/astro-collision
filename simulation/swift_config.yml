@@ -23,7 +23,7 @@ Snapshots:
     subdir:             snapshots       # Sub-directory in which to write the snapshots. Defaults to "" (i.e. the directory where SWIFT is run).
     basename:           impact          # Common part of the name of output files
     time_first:         0               # Time of the first output (in internal units)
-    delta_time:         500             # Time difference between consecutive outputs (in internal units)
+    delta_time:         100             # Time difference between consecutive outputs (in internal units)
 
 # Parameters governing the conserved quantities statistics
 Statistics:
