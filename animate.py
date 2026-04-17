@@ -59,23 +59,24 @@ def create_animation(snapshots, output_file=OUTPUT_FILE, skip=1):
         })
     print("Datos pre-cargados")
     
-    # Configurar figura 2D para mayor velocidad
+    # Configurar figura 3D
     fig = plt.figure(figsize=FIGURE_SIZE)
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(111, projection='3d')
     
     # Configurar ejes con el primer snapshot
     pos0 = all_data[0]['pos']
-    max_range = np.max(np.abs(pos0[:, :2])) * 1.5
+    max_range = np.max(np.abs(pos0)) * 1.5
     
     ax.set_xlim(-max_range, max_range)
     ax.set_ylim(-max_range, max_range)
+    ax.set_zlim(-max_range, max_range)
     ax.set_xlabel('X (R_earth)')
     ax.set_ylabel('Y (R_earth)')
+    ax.set_zlabel('Z (R_earth)')
     ax.set_title('Colisión Planetaria')
-    ax.set_aspect('equal')
     
     # Inicializar scatter plot vacío
-    scatter = ax.scatter([], [], c=[], cmap='viridis', s=PARTICLE_SIZE, alpha=0.6)
+    scatter = ax.scatter([], [], [], c=[], cmap='viridis', s=PARTICLE_SIZE, alpha=0.6)
     
     def update(frame):
         """Función de actualización para la animación"""
@@ -84,8 +85,8 @@ def create_animation(snapshots, output_file=OUTPUT_FILE, skip=1):
             pos = data['pos']
             rho = data['rho']
             
-            # Actualizar posiciones y colores (2D)
-            scatter.set_offsets(np.column_stack([pos[:, 0], pos[:, 1]]))
+            # Actualizar posiciones y colores (3D)
+            scatter._offsets3d = (pos[:, 0], pos[:, 1], pos[:, 2])
             scatter.set_array(rho)
             
             # Actualizar título con número de frame
@@ -107,7 +108,7 @@ def create_animation(snapshots, output_file=OUTPUT_FILE, skip=1):
     
     # Guardar animación
     print(f"Guardando animación en {output_file}...")
-    anim.save(output_file, writer='pillow', fps=FPS, dpi=60)
+    anim.save(output_file, writer='pillow', fps=FPS, dpi=80)
     plt.close(fig)
     
     print(f"Animación guardada: {output_file}")
