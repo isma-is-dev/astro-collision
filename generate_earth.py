@@ -8,9 +8,15 @@ import argparse
 from pathlib import Path
 
 import numpy as np
-import woma
 
-from planetary_utils import DEFAULT_FILE_TO_SI, EARTH_MASS_KG, build_differentiated_planet
+from planetary_utils import (
+    EARTH_MASS_KG,
+    build_differentiated_planet,
+    build_particle_planet,
+    require_integer_at_least,
+    require_positive,
+    save_particle_body,
+)
 
 
 def parse_args():
@@ -32,6 +38,9 @@ def parse_args():
 def main():
     args = parse_args()
     verbosity = 0 if args.quiet else 1
+    require_positive(args.mass, "mass")
+    require_integer_at_least(args.particles, "particles")
+    require_positive(args.boxsize_factor, "boxsize_factor")
     mass_kg = args.mass * EARTH_MASS_KG
     radius_m = None if args.radius_km is None else args.radius_km * 1e3
 
@@ -45,13 +54,12 @@ def main():
         verbosity=verbosity,
     )
 
-    particles = woma.ParticlePlanet(planet, args.particles, seed=args.seed, verbosity=verbosity)
-    output_path = args.output.resolve()
-    particles.save(
-        str(output_path),
-        boxsize=args.boxsize_factor * planet.R,
-        file_to_SI=DEFAULT_FILE_TO_SI,
-        do_entropies=not args.no_entropies,
+    particles = build_particle_planet(planet, args.particles, seed=args.seed, verbosity=verbosity)
+    output_path = save_particle_body(
+        args.output,
+        particles,
+        boxsize_m=args.boxsize_factor * planet.R,
+        include_entropies=not args.no_entropies,
         verbosity=verbosity,
     )
 

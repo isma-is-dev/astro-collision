@@ -1,4 +1,5 @@
 from pathlib import Path
+import inspect
 import math
 
 import h5py
@@ -9,11 +10,58 @@ EARTH_MASS_KG = 5.972e24
 EARTH_RADIUS_M = 6.371e6
 G_SI = 6.67430e-11
 DEFAULT_FILE_TO_SI = woma.Conversions(m=1e24, l=1e6, t=1.0)
+_SEAGEN_COMPAT_PATCHED = False
+
+
+def prepare_output_path(output_path):
+    output_path = Path(output_path).resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    return output_path
+
+
+def require_positive(value, name):
+    numeric_value = float(value)
+    if numeric_value <= 0.0:
+        raise ValueError(f"{name} must be positive")
+    return value
+
+
+def require_non_negative(value, name):
+    numeric_value = float(value)
+    if numeric_value < 0.0:
+        raise ValueError(f"{name} must be non-negative")
+    return value
+
+
+def require_integer_at_least(value, name, minimum=1):
+    integer_value = int(value)
+    if integer_value < minimum:
+        raise ValueError(f"{name} must be at least {minimum}")
+    return integer_value
+
+
+def ensure_seagen_compatibility():
+    global _SEAGEN_COMPAT_PATCHED
+    if _SEAGEN_COMPAT_PATCHED:
+        return
+
+    import seagen
+
+    original_init = seagen.GenSphere.__init__
+    if "Di_param_A1_misc_prof" in inspect.signature(original_init).parameters:
+        _SEAGEN_COMPAT_PATCHED = True
+        return
+
+    def patched_gen_sphere(self, *args, **kwargs):
+        kwargs.pop("Di_param_A1_misc_prof", None)
+        return original_init(self, *args, **kwargs)
+
+    seagen.GenSphere.__init__ = patched_gen_sphere
+    _SEAGEN_COMPAT_PATCHED = True
 
 
 def earth_like_radius_from_mass(mass_kg):
-    if mass_kg <= 0:
-        raise ValueError("mass_kg must be positive")
+    require_positive(mass_kg, "mass_kg")
     return EARTH_RADIUS_M * (mass_kg / EARTH_MASS_KG) ** 0.27
 
 
@@ -24,6 +72,10 @@ def mutual_escape_velocity(target_mass_kg, target_radius_m, impactor_mass_kg, im
 
 
 def body_particle_count(body_mass_kg, reference_mass_kg, reference_particles, minimum_particles=1000):
+    require_positive(body_mass_kg, "body_mass_kg")
+    require_positive(reference_mass_kg, "reference_mass_kg")
+    reference_particles = require_integer_at_least(reference_particles, "reference_particles")
+    minimum_particles = require_integer_at_least(minimum_particles, "minimum_particles")
     scaled_particles = int(round(reference_particles * body_mass_kg / reference_mass_kg))
     return max(minimum_particles, scaled_particles)
 
@@ -39,8 +91,13 @@ def build_differentiated_planet(
     mantle_material="Til_granite",
     verbosity=1,
 ):
+    require_positive(mass_kg, "mass_kg")
     if not 0.0 < core_mass_fraction < 1.0:
         raise ValueError("core_mass_fraction must be between 0 and 1")
+    if radius_m is not None:
+        require_positive(radius_m, "radius_m")
+    require_positive(surface_pressure_pa, "surface_pressure_pa")
+    require_positive(surface_temperature_k, "surface_temperature_k")
 
     radius_guess_m = radius_m or earth_like_radius_from_mass(mass_kg)
     planet = woma.Planet(
@@ -60,6 +117,12 @@ def build_differentiated_planet(
     return planet
 
 
+def build_particle_planet(planet, particle_count, seed=12345, verbosity=1):
+    particle_count = require_integer_at_least(particle_count, "particle_count")
+    ensure_seagen_compatibility()
+    return woma.ParticlePlanet(planet, particle_count, seed=seed, verbosity=verbosity)
+
+
 def recenter_two_body_system(
     target_position_m,
     target_velocity_m_s,
@@ -68,6 +131,8 @@ def recenter_two_body_system(
     target_mass_kg,
     impactor_mass_kg,
 ):
+    require_positive(target_mass_kg, "target_mass_kg")
+    require_positive(impactor_mass_kg, "impactor_mass_kg")
     total_mass_kg = target_mass_kg + impactor_mass_kg
     center_of_mass_position = (
         target_mass_kg * target_position_m + impactor_mass_kg * impactor_position_m
@@ -93,6 +158,19 @@ def ensure_entropies(particles):
     return particles.A1_s
 
 
+def save_particle_body(output_path, particles, boxsize_m, include_entropies=False, verbosity=1):
+    output_path = prepare_output_path(output_path)
+    save_entropies = include_entropies and ensure_entropies(particles) is not None
+    particles.save(
+        str(output_path),
+        boxsize=boxsize_m,
+        file_to_SI=DEFAULT_FILE_TO_SI,
+        do_entropies=save_entropies,
+        verbosity=verbosity,
+    )
+    return output_path
+
+
 def save_combined_snapshot(
     output_path,
     target_particles,
@@ -104,6 +182,7 @@ def save_combined_snapshot(
     boxsize_m,
     include_entropies=False,
 ):
+    output_path = prepare_output_path(output_path)
     target_positions = target_particles.A2_pos + target_position_m
     impactor_positions = impactor_particles.A2_pos + impactor_position_m
     target_velocities = target_particles.A2_vel + target_velocity_m_s
@@ -236,10 +315,10 @@ def load_snapshot(snapshot_path):
             particles = handle["PartType0"]
             header = handle["Header"].attrs
             boxsize = np.asarray(header.get("BoxSize", [0.0, 0.0, 0.0]), dtype=np.float64)
-            boxsize_m = _as_float(boxsize, default=0.0) * units["length_m"]
+            boxsize_m = boxsize * units["length_m"]
             position_m = np.asarray(particles["Coordinates"], dtype=np.float64)
-            if boxsize_m > 0.0:
-                position_m = position_m - 0.5 * _as_float(boxsize, default=0.0)
+            if np.any(boxsize_m > 0.0):
+                position_m = position_m - 0.5 * boxsize
             position_m = position_m * units["length_m"]
             velocity_m_s = np.asarray(particles["Velocities"], dtype=np.float64) * units["velocity_m_s"]
             mass_kg = np.asarray(particles["Masses"], dtype=np.float64) * units["mass_kg"]

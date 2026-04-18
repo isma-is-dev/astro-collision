@@ -23,7 +23,7 @@ Snapshots:
     subdir:             simulation_output       # Sub-directory in which to write the snapshots. Defaults to "" (i.e. the directory where SWIFT is run).
     basename:           snapshot        # Common part of the name of output files
     time_first:         0               # Time of the first output (in internal units)
-    delta_time:         900             # Time difference between consecutive outputs (in internal units)
+    delta_time:         300             # Time difference between consecutive outputs (in internal units)
 
 # Parameters governing the conserved quantities statistics
 Statistics:
@@ -56,5 +56,6 @@ Scheduler:
 
 # Parameters related to the equation of state
 EoS:
-    # Tillotson materials don't require table files
-    # Material ID 103 = Til_basalt
+    # Tillotson materials (parameters hardcoded in SWIFT, no table files needed)
+    planetary_use_Til_iron:     1   # Material ID 100 (core)
+    planetary_use_Til_granite:  1   # Material ID 101 (mantle)

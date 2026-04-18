@@ -50,4 +50,6 @@ Scheduler:
     max_top_level_cells:    128         # Más celdas para 100k partículas
 
 EoS:
-    # Tillotson materials: Til_iron (100), Til_granite (101)
+    # Tillotson materials (parameters hardcoded in SWIFT, no table files needed)
+    planetary_use_Til_iron:     1   # Material ID 100 (core)
+    planetary_use_Til_granite:  1   # Material ID 101 (mantle)
