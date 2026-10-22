@@ -1,0 +1,55 @@
+# Configuración para simulación de impacto masivo (3 M⊕ vs 2 M⊕)
+# Duración extendida: ~50 horas de simulación física con snapshots cada 5 minutos
+
+InternalUnitSystem:
+    UnitMass_in_cgs:        1e27
+    UnitLength_in_cgs:      1e8
+    UnitVelocity_in_cgs:    1e8
+    UnitCurrent_in_cgs:     1
+    UnitTemp_in_cgs:        1
+
+InitialConditions:
+    file_name:  massive_impact_IC.hdf5
+    periodic:   0
+
+TimeIntegration:
+    time_begin:     0
+    time_end:       100000              # ~27.7 horas de simulación física
+    dt_min:         0.000001
+    dt_max:         30                  # Más conservador para planetas masivos
+
+Snapshots:
+    subdir:         massive_simulation_output
+    basename:       snapshot
+    time_first:     0
+    delta_time:     1800                # Snapshot cada 30 minutos de simulación
+
+Statistics:
+    time_first:     0
+    delta_time:     600                 # Estadísticas cada 10 minutos
+
+Restarts:
+    enable:         1                   # Habilitar restarts para simulaciones largas
+    delta_time:     36000               # Guardar restart cada 10 horas
+
+SPH:
+    resolution_eta:     1.2348
+    delta_neighbours:   0.1
+    CFL_condition:      0.15            # Más conservador para planetas masivos
+    h_max:              2.0             # Mayor h_max para planetas más grandes
+    viscosity_alpha:    1.5
+
+Gravity:
+    eta:                            0.025
+    MAC:                            adaptive
+    epsilon_fmm:                    0.001
+    theta_cr:                       0.5
+    max_physical_baryon_softening:  0.25    # Mayor softening para masas mayores
+
+Scheduler:
+    max_top_level_cells:    128         # Más celdas para 100k partículas
+
+EoS:
+    # Tillotson materials (parameters hardcoded in SWIFT, no table files needed)
+    planetary_use_Til_iron:     1   # Material ID 100 (core)
+    planetary_use_Til_granite:  1   # Material ID 101 (mantle)

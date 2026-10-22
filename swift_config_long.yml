@@ -1,0 +1,55 @@
+# Configuración LARGA basada en la original que funcionó
+# Genera miles de snapshots para animación extendida
+
+InternalUnitSystem:
+    UnitMass_in_cgs:        1e27
+    UnitLength_in_cgs:      1e8
+    UnitVelocity_in_cgs:    1e8
+    UnitCurrent_in_cgs:     1
+    UnitTemp_in_cgs:        1
+
+InitialConditions:
+    file_name:  impact_IC.hdf5
+    periodic:   0
+
+TimeIntegration:
+    time_begin:     0
+    time_end:       43200               # ~12 horas de simulación (igual que original)
+    dt_min:         0.000001
+    dt_max:         50
+
+Snapshots:
+    subdir:         long_simulation_output
+    basename:       snapshot
+    time_first:     0
+    delta_time:     8                   # Snapshot cada 8 segundos = 5,400 snapshots
+
+Statistics:
+    time_first:     0
+    delta_time:     300
+
+Restarts:
+    enable:         1
+    delta_time:     10000
+
+SPH:
+    resolution_eta:     1.2348
+    delta_neighbours:   0.1
+    CFL_condition:      0.2
+    h_max:              1.0
+    viscosity_alpha:    1.5
+
+Gravity:
+    eta:                            0.025
+    MAC:                            adaptive
+    epsilon_fmm:                    0.001
+    theta_cr:                       0.5
+    max_physical_baryon_softening:  0.16
+
+Scheduler:
+    max_top_level_cells:    64
+
+EoS:
+    # Tillotson materials (parameters hardcoded in SWIFT, no table files needed)
+    planetary_use_Til_iron:     1   # Material ID 100 (core)
+    planetary_use_Til_granite:  1   # Material ID 101 (mantle)

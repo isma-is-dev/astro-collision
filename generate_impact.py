@@ -4,118 +4,196 @@ Generar condiciones iniciales de impacto usando WoMa
 Siguiendo el roadmap FASE 2.2
 """
 
-import sys
-sys.path.insert(0, '/home/ismaelmartin/.codex/astro-emulator/venv/lib/python3.12/site-packages')
+import argparse
+from pathlib import Path
 
 import numpy as np
-import h5py
 import woma
 
-# Constantes
-M_earth = 5.972e24
-R_earth = 6.371e6
-
-# Cargar el planeta generado (usaremos el mismo archivo para target e impactor)
-def load_planet_data(filename):
-    with h5py.File(filename, "r") as f:
-        # Unidades desde metadatos del archivo
-        file_to_SI = woma.Conversions(
-            m=float(f["Units"].attrs["Unit mass in cgs (U_M)"][0]) * 1e-3,
-            l=float(f["Units"].attrs["Unit length in cgs (U_L)"][0]) * 1e-2,
-            t=float(f["Units"].attrs["Unit time in cgs (U_t)"][0]),
-        )
-
-        # Datos de partículas (convertidos a SI)
-        A2_pos = (
-            np.array(f["PartType0/Coordinates"][()])
-            - 0.5 * f["Header"].attrs["BoxSize"]
-        ) * file_to_SI.l
-        A1_m = np.array(f["PartType0/Masses"][()]) * file_to_SI.m
-        A1_h = np.array(f["PartType0/SmoothingLengths"][()]) * file_to_SI.l
-        A1_rho = np.array(f["PartType0/Densities"][()]) * file_to_SI.rho
-        A1_P = np.array(f["PartType0/Pressures"][()]) * file_to_SI.P
-        A1_u = np.array(f["PartType0/InternalEnergies"][()]) * file_to_SI.u
-        A1_mat_id = np.array(f["PartType0/MaterialIDs"][()])
-        A1_s = np.array(f["PartType0/Entropies"][()]) * file_to_SI.s
-
-        return A2_pos, A1_m, A1_h, A1_rho, A1_P, A1_u, A1_mat_id, A1_s, file_to_SI
-
-# Cargar datos del planeta
-A2_pos_t, A1_m_t, A1_h_t, A1_rho_t, A1_P_t, A1_u_t, A1_mat_id_t, A1_s_t, file_to_SI = load_planet_data(
-    "earth_IC.hdf5"
+from planetary_utils import (
+    EARTH_MASS_KG,
+    body_particle_count,
+    build_particle_planet,
+    build_differentiated_planet,
+    mutual_escape_velocity,
+    prepare_output_path,
+    recenter_two_body_system,
+    require_integer_at_least,
+    require_non_negative,
+    require_positive,
+    save_combined_snapshot,
+    save_particle_body,
 )
 
-# Para el impactor, usaremos una versión escalada del mismo planeta (más pequeño)
-# Escalar posiciones y masas para crear un impactor más pequeño
-scale_factor = 0.5  # Impactor 50% del tamaño del target
-A2_pos_i = A2_pos_t * scale_factor
-A1_m_i = A1_m_t * (scale_factor ** 3)  # Masa escala con volumen
-A1_h_i = A1_h_t * scale_factor
-A1_rho_i = A1_rho_t  # Densidad se mantiene
-A1_P_i = A1_P_t
-A1_u_i = A1_u_t
-A1_mat_id_i = A1_mat_id_t
-A1_s_i = A1_s_t  # Entropía se mantiene
+def parse_args():
+    parser = argparse.ArgumentParser(description="Generar condiciones iniciales de impacto rocoso")
+    parser.add_argument("--target-mass", type=float, default=1.0, help="Masa del target en masas terrestres")
+    parser.add_argument("--impactor-mass", type=float, default=None, help="Masa del impactor en masas terrestres")
+    parser.add_argument("--impactor-mass-ratio", type=float, default=0.1, help="M_impactor / M_target si no se pasa --impactor-mass")
+    parser.add_argument("--target-radius-km", type=float, default=None, help="Radio del target en km")
+    parser.add_argument("--impactor-radius-km", type=float, default=None, help="Radio del impactor en km")
+    parser.add_argument("--target-particles", type=int, default=40000, help="Número de partículas del target")
+    parser.add_argument("--impactor-particles", type=int, default=None, help="Número de partículas del impactor")
+    parser.add_argument("--core-mass-fraction", type=float, default=0.325, help="Fracción de masa del núcleo")
+    parser.add_argument("--surface-pressure", type=float, default=1e5, help="Presión superficial en Pa")
+    parser.add_argument("--surface-temperature", type=float, default=2000.0, help="Temperatura superficial en K")
+    parser.add_argument("--impact-angle", type=float, default=45.0, help="Ángulo de impacto en grados")
+    parser.add_argument("--velocity-escape", type=float, default=1.1, help="Velocidad de impacto en múltiplos de la velocidad de escape mutua")
+    parser.add_argument("--time-before-contact", type=float, default=3600.0, help="Tiempo antes del contacto en segundos")
+    parser.add_argument("--seed", type=int, default=12345, help="Semilla base aleatoria")
+    parser.add_argument("--boxsize-factor", type=float, default=3.0, help="Factor multiplicativo para el tamaño de caja")
+    parser.add_argument("--output", type=Path, default=Path("impact_IC.hdf5"), help="Archivo HDF5 de salida")
+    parser.add_argument("--target-output", type=Path, default=None, help="Guardar también el target aislado")
+    parser.add_argument("--impactor-output", type=Path, default=None, help="Guardar también el impactor aislado")
+    parser.add_argument("--no-entropies", action="store_true", help="No guardar entropías")
+    parser.add_argument("--quiet", action="store_true", help="Reducir salida de WoMa")
+    return parser.parse_args()
 
-# Calcular masas totales
-M_t = np.sum(A1_m_t)
-M_i = np.sum(A1_m_i)
-R_t = R_earth
-R_i = R_earth * scale_factor
+def main():
+    args = parse_args()
+    verbosity = 0 if args.quiet else 1
+    require_positive(args.target_mass, "target_mass")
+    if args.impactor_mass is not None:
+        require_positive(args.impactor_mass, "impactor_mass")
+    else:
+        require_positive(args.impactor_mass_ratio, "impactor_mass_ratio")
+    require_integer_at_least(args.target_particles, "target_particles")
+    if args.impactor_particles is not None:
+        require_integer_at_least(args.impactor_particles, "impactor_particles")
+    require_positive(args.surface_pressure, "surface_pressure")
+    require_positive(args.surface_temperature, "surface_temperature")
+    require_positive(args.velocity_escape, "velocity_escape")
+    require_non_negative(args.impact_angle, "impact_angle")
+    require_positive(args.time_before_contact, "time_before_contact")
+    require_positive(args.boxsize_factor, "boxsize_factor")
 
-print(f"Target: M={M_t:.2e} kg, R={R_t/1000:.2f} km")
-print(f"Impactor: M={M_i:.2e} kg, R={R_i/1000:.2f} km")
+    target_mass_kg = args.target_mass * EARTH_MASS_KG
+    impactor_mass_kg = (
+        args.impactor_mass * EARTH_MASS_KG
+        if args.impactor_mass is not None
+        else args.impactor_mass_ratio * target_mass_kg
+    )
+    target_radius_m = None if args.target_radius_km is None else args.target_radius_km * 1e3
+    impactor_radius_m = None if args.impactor_radius_km is None else args.impactor_radius_km * 1e3
 
-# Condiciones iniciales de impacto (frame de reposo del target)
-# Colisión a 45 grados, velocidad de escape mutua, 1 hora antes del contacto
-A1_pos_t, A1_vel_t = np.zeros(3), np.zeros(3)
-A1_pos_i, A1_vel_i = woma.impact_pos_vel_b_v_c_t(
-    b=np.sin(45 * np.pi / 180),
-    v_c=1,
-    units_v_c="v_esc",
-    t=3600,
-    R_t=R_t,
-    R_i=R_i,
-    M_t=M_t,
-    M_i=M_i,
-)
-
-print(f"Impact angle: 45 degrees")
-print(f"Impact velocity: 1 x escape velocity")
-print(f"Time before contact: 1 hour")
-
-# Shift al frame del centro de masa
-A1_pos_com = (M_t * A1_pos_t + M_i * A1_pos_i) / (M_t + M_i)
-A1_vel_com = (M_t * A1_vel_t + M_i * A1_vel_i) / (M_t + M_i)
-
-A1_pos_t -= A1_pos_com
-A1_vel_t -= A1_vel_com
-A1_pos_i -= A1_pos_com
-A1_vel_i -= A1_vel_com
-
-# Actualizar posiciones de partículas
-A2_pos_t[:] += A1_pos_t
-A2_vel_t = np.zeros_like(A2_pos_t) + A1_vel_t
-A2_pos_i[:] += A1_pos_i
-A2_vel_i = np.zeros_like(A2_pos_i) + A1_vel_i
-
-# Combinar y guardar los datos de partículas
-output_file = "impact_IC.hdf5"
-with h5py.File(output_file, "w") as f:
-    woma.save_particle_data(
-        f,
-        A2_pos=np.append(A2_pos_t, A2_pos_i, axis=0),
-        A2_vel=np.append(A2_vel_t, A2_vel_i, axis=0),
-        A1_m=np.append(A1_m_t, A1_m_i),
-        A1_h=np.append(A1_h_t, A1_h_i),
-        A1_rho=np.append(A1_rho_t, A1_rho_i),
-        A1_P=np.append(A1_P_t, A1_P_i),
-        A1_u=np.append(A1_u_t, A1_u_i),
-        A1_mat_id=np.append(A1_mat_id_t, A1_mat_id_i),
-        A1_s=np.append(A1_s_t, A1_s_i),
-        boxsize=100 * R_earth,
-        file_to_SI=woma.Conversions(m=1e24, l=1e6, t=1),
+    target_planet = build_differentiated_planet(
+        name="target",
+        mass_kg=target_mass_kg,
+        radius_m=target_radius_m,
+        core_mass_fraction=args.core_mass_fraction,
+        surface_pressure_pa=args.surface_pressure,
+        surface_temperature_k=args.surface_temperature,
+        verbosity=verbosity,
+    )
+    impactor_planet = build_differentiated_planet(
+        name="impactor",
+        mass_kg=impactor_mass_kg,
+        radius_m=impactor_radius_m,
+        core_mass_fraction=args.core_mass_fraction,
+        surface_pressure_pa=args.surface_pressure,
+        surface_temperature_k=args.surface_temperature,
+        verbosity=verbosity,
     )
 
-print(f"Condiciones iniciales de impacto guardadas en {output_file}")
-print(f"Total partículas: {len(A2_pos_t) + len(A2_pos_i)}")
+    impactor_particle_count = args.impactor_particles or body_particle_count(
+        impactor_planet.M,
+        target_planet.M,
+        args.target_particles,
+    )
+
+    target_particles = build_particle_planet(
+        target_planet,
+        args.target_particles,
+        seed=args.seed,
+        verbosity=verbosity,
+    )
+    impactor_particles = build_particle_planet(
+        impactor_planet,
+        impactor_particle_count,
+        seed=args.seed + 1,
+        verbosity=verbosity,
+    )
+
+    if args.target_output is not None:
+        save_particle_body(
+            args.target_output,
+            target_particles,
+            boxsize_m=10.0 * target_planet.R,
+            include_entropies=not args.no_entropies,
+            verbosity=verbosity,
+        )
+    if args.impactor_output is not None:
+        save_particle_body(
+            args.impactor_output,
+            impactor_particles,
+            boxsize_m=10.0 * impactor_planet.R,
+            include_entropies=not args.no_entropies,
+            verbosity=verbosity,
+        )
+
+    impact_parameter = np.sin(np.deg2rad(args.impact_angle))
+    escape_velocity_m_s = mutual_escape_velocity(
+        target_planet.M,
+        target_planet.R,
+        impactor_planet.M,
+        impactor_planet.R,
+    )
+    impact_velocity_m_s = args.velocity_escape * escape_velocity_m_s
+
+    target_position_m = np.zeros(3)
+    target_velocity_m_s = np.zeros(3)
+    impactor_position_m, impactor_velocity_m_s = woma.impact_pos_vel_b_v_c_t(
+        b=impact_parameter,
+        v_c=impact_velocity_m_s,
+        t=args.time_before_contact,
+        R_t=target_planet.R,
+        R_i=impactor_planet.R,
+        M_t=target_planet.M,
+        M_i=impactor_planet.M,
+        units_v_c="m/s",
+    )
+
+    (
+        target_position_m,
+        target_velocity_m_s,
+        impactor_position_m,
+        impactor_velocity_m_s,
+    ) = recenter_two_body_system(
+        target_position_m,
+        target_velocity_m_s,
+        impactor_position_m,
+        impactor_velocity_m_s,
+        target_planet.M,
+        impactor_planet.M,
+    )
+
+    initial_separation_m = np.linalg.norm(impactor_position_m - target_position_m)
+    boxsize_m = max(
+        args.boxsize_factor * initial_separation_m,
+        8.0 * (target_planet.R + impactor_planet.R),
+    )
+    output_path = prepare_output_path(args.output)
+    save_combined_snapshot(
+        output_path=output_path,
+        target_particles=target_particles,
+        impactor_particles=impactor_particles,
+        target_position_m=target_position_m,
+        target_velocity_m_s=target_velocity_m_s,
+        impactor_position_m=impactor_position_m,
+        impactor_velocity_m_s=impactor_velocity_m_s,
+        boxsize_m=boxsize_m,
+        include_entropies=not args.no_entropies,
+    )
+
+    print(f"Target: M={target_planet.M:.3e} kg, R={target_planet.R / 1e3:.1f} km, N={target_particles.N_particles}")
+    print(f"Impactor: M={impactor_planet.M:.3e} kg, R={impactor_planet.R / 1e3:.1f} km, N={impactor_particles.N_particles}")
+    print(f"Impact angle: {args.impact_angle:.1f} degrees")
+    print(f"Impact parameter b: {impact_parameter:.3f}")
+    print(f"Mutual escape velocity: {escape_velocity_m_s / 1e3:.2f} km/s")
+    print(f"Impact velocity: {impact_velocity_m_s / 1e3:.2f} km/s")
+    print(f"Initial separation: {initial_separation_m / 1e3:.1f} km")
+    print(f"Condiciones iniciales guardadas en {output_path}")
+
+
+if __name__ == "__main__":
+    main()
