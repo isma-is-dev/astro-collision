@@ -1,0 +1,237 @@
+<?xml version="1.0" ?> 
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []> 
+<Xdmf xmlns:xi="http://www.w3.org/2003/XInclude" Version="2.1">
+<Domain>
+<Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
+
+
+<!-- XMF description for file: settle_earth_output/snapshot_0000.hdf5 -->
+<Grid GridType="Collection" CollectionType="Spatial">
+<Time Type="Single" Value="0.000000"/>
+
+<Grid Name="Gas" GridType="Uniform">
+<Topology TopologyType="Polyvertex" Dimensions="23808"/>
+<Geometry GeometryType="XYZ">
+<DataItem Dimensions="23808 3" NumberType="Double" Precision="8" Format="HDF">snapshot_0000.hdf5:/PartType0/Coordinates</DataItem>
+</Geometry>
+ <!-- Done geometry for Gas, start of particle fields list -->
+<Attribute Name="Coordinates" AttributeType="Vector" Center="Node">
+<DataItem Dimensions="23808 3" NumberType="Float" Precision="8" Format="HDF">snapshot_0000.hdf5:/PartType0/Coordinates</DataItem>
+</Attribute>
+<Attribute Name="Velocities" AttributeType="Vector" Center="Node">
+<DataItem Dimensions="23808 3" NumberType="Float" Precision="4" Format="HDF">snapshot_0000.hdf5:/PartType0/Velocities</DataItem>
+</Attribute>
+<Attribute Name="Masses" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0000.hdf5:/PartType0/Masses</DataItem>
+</Attribute>
+<Attribute Name="SmoothingLengths" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0000.hdf5:/PartType0/SmoothingLengths</DataItem>
+</Attribute>
+<Attribute Name="InternalEnergies" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0000.hdf5:/PartType0/InternalEnergies</DataItem>
+</Attribute>
+<Attribute Name="ParticleIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0000.hdf5:/PartType0/ParticleIDs</DataItem>
+</Attribute>
+<Attribute Name="Densities" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0000.hdf5:/PartType0/Densities</DataItem>
+</Attribute>
+<Attribute Name="Entropies" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0000.hdf5:/PartType0/Entropies</DataItem>
+</Attribute>
+<Attribute Name="MaterialIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="4" Format="HDF">snapshot_0000.hdf5:/PartType0/MaterialIDs</DataItem>
+</Attribute>
+<Attribute Name="Pressures" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0000.hdf5:/PartType0/Pressures</DataItem>
+</Attribute>
+<Attribute Name="Potentials" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0000.hdf5:/PartType0/Potentials</DataItem>
+</Attribute>
+<Attribute Name="ProgenitorParticleIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0000.hdf5:/PartType0/ProgenitorParticleIDs</DataItem>
+</Attribute>
+<Attribute Name="SplitCounts" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Char" Precision="1" Format="HDF">snapshot_0000.hdf5:/PartType0/SplitCounts</DataItem>
+</Attribute>
+<Attribute Name="SplitTrees" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0000.hdf5:/PartType0/SplitTrees</DataItem>
+</Attribute>
+</Grid> <!-- End of meta-data for parttype=Gas -->
+
+</Grid> <!-- End of meta-data for output=0000, time=0.000000 -->
+
+
+<!-- XMF description for file: settle_earth_output/snapshot_0001.hdf5 -->
+<Grid GridType="Collection" CollectionType="Spatial">
+<Time Type="Single" Value="200.000000"/>
+
+<Grid Name="Gas" GridType="Uniform">
+<Topology TopologyType="Polyvertex" Dimensions="23808"/>
+<Geometry GeometryType="XYZ">
+<DataItem Dimensions="23808 3" NumberType="Double" Precision="8" Format="HDF">snapshot_0001.hdf5:/PartType0/Coordinates</DataItem>
+</Geometry>
+ <!-- Done geometry for Gas, start of particle fields list -->
+<Attribute Name="Coordinates" AttributeType="Vector" Center="Node">
+<DataItem Dimensions="23808 3" NumberType="Float" Precision="8" Format="HDF">snapshot_0001.hdf5:/PartType0/Coordinates</DataItem>
+</Attribute>
+<Attribute Name="Velocities" AttributeType="Vector" Center="Node">
+<DataItem Dimensions="23808 3" NumberType="Float" Precision="4" Format="HDF">snapshot_0001.hdf5:/PartType0/Velocities</DataItem>
+</Attribute>
+<Attribute Name="Masses" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0001.hdf5:/PartType0/Masses</DataItem>
+</Attribute>
+<Attribute Name="SmoothingLengths" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0001.hdf5:/PartType0/SmoothingLengths</DataItem>
+</Attribute>
+<Attribute Name="InternalEnergies" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0001.hdf5:/PartType0/InternalEnergies</DataItem>
+</Attribute>
+<Attribute Name="ParticleIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0001.hdf5:/PartType0/ParticleIDs</DataItem>
+</Attribute>
+<Attribute Name="Densities" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0001.hdf5:/PartType0/Densities</DataItem>
+</Attribute>
+<Attribute Name="Entropies" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0001.hdf5:/PartType0/Entropies</DataItem>
+</Attribute>
+<Attribute Name="MaterialIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="4" Format="HDF">snapshot_0001.hdf5:/PartType0/MaterialIDs</DataItem>
+</Attribute>
+<Attribute Name="Pressures" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0001.hdf5:/PartType0/Pressures</DataItem>
+</Attribute>
+<Attribute Name="Potentials" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0001.hdf5:/PartType0/Potentials</DataItem>
+</Attribute>
+<Attribute Name="ProgenitorParticleIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0001.hdf5:/PartType0/ProgenitorParticleIDs</DataItem>
+</Attribute>
+<Attribute Name="SplitCounts" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Char" Precision="1" Format="HDF">snapshot_0001.hdf5:/PartType0/SplitCounts</DataItem>
+</Attribute>
+<Attribute Name="SplitTrees" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0001.hdf5:/PartType0/SplitTrees</DataItem>
+</Attribute>
+</Grid> <!-- End of meta-data for parttype=Gas -->
+
+</Grid> <!-- End of meta-data for output=0001, time=200.000000 -->
+
+
+<!-- XMF description for file: settle_earth_output/snapshot_0002.hdf5 -->
+<Grid GridType="Collection" CollectionType="Spatial">
+<Time Type="Single" Value="400.000000"/>
+
+<Grid Name="Gas" GridType="Uniform">
+<Topology TopologyType="Polyvertex" Dimensions="23808"/>
+<Geometry GeometryType="XYZ">
+<DataItem Dimensions="23808 3" NumberType="Double" Precision="8" Format="HDF">snapshot_0002.hdf5:/PartType0/Coordinates</DataItem>
+</Geometry>
+ <!-- Done geometry for Gas, start of particle fields list -->
+<Attribute Name="Coordinates" AttributeType="Vector" Center="Node">
+<DataItem Dimensions="23808 3" NumberType="Float" Precision="8" Format="HDF">snapshot_0002.hdf5:/PartType0/Coordinates</DataItem>
+</Attribute>
+<Attribute Name="Velocities" AttributeType="Vector" Center="Node">
+<DataItem Dimensions="23808 3" NumberType="Float" Precision="4" Format="HDF">snapshot_0002.hdf5:/PartType0/Velocities</DataItem>
+</Attribute>
+<Attribute Name="Masses" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0002.hdf5:/PartType0/Masses</DataItem>
+</Attribute>
+<Attribute Name="SmoothingLengths" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0002.hdf5:/PartType0/SmoothingLengths</DataItem>
+</Attribute>
+<Attribute Name="InternalEnergies" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0002.hdf5:/PartType0/InternalEnergies</DataItem>
+</Attribute>
+<Attribute Name="ParticleIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0002.hdf5:/PartType0/ParticleIDs</DataItem>
+</Attribute>
+<Attribute Name="Densities" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0002.hdf5:/PartType0/Densities</DataItem>
+</Attribute>
+<Attribute Name="Entropies" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0002.hdf5:/PartType0/Entropies</DataItem>
+</Attribute>
+<Attribute Name="MaterialIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="4" Format="HDF">snapshot_0002.hdf5:/PartType0/MaterialIDs</DataItem>
+</Attribute>
+<Attribute Name="Pressures" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0002.hdf5:/PartType0/Pressures</DataItem>
+</Attribute>
+<Attribute Name="Potentials" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0002.hdf5:/PartType0/Potentials</DataItem>
+</Attribute>
+<Attribute Name="ProgenitorParticleIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0002.hdf5:/PartType0/ProgenitorParticleIDs</DataItem>
+</Attribute>
+<Attribute Name="SplitCounts" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Char" Precision="1" Format="HDF">snapshot_0002.hdf5:/PartType0/SplitCounts</DataItem>
+</Attribute>
+<Attribute Name="SplitTrees" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0002.hdf5:/PartType0/SplitTrees</DataItem>
+</Attribute>
+</Grid> <!-- End of meta-data for parttype=Gas -->
+
+</Grid> <!-- End of meta-data for output=0002, time=400.000000 -->
+
+
+<!-- XMF description for file: settle_earth_output/snapshot_0003.hdf5 -->
+<Grid GridType="Collection" CollectionType="Spatial">
+<Time Type="Single" Value="600.000000"/>
+
+<Grid Name="Gas" GridType="Uniform">
+<Topology TopologyType="Polyvertex" Dimensions="23808"/>
+<Geometry GeometryType="XYZ">
+<DataItem Dimensions="23808 3" NumberType="Double" Precision="8" Format="HDF">snapshot_0003.hdf5:/PartType0/Coordinates</DataItem>
+</Geometry>
+ <!-- Done geometry for Gas, start of particle fields list -->
+<Attribute Name="Coordinates" AttributeType="Vector" Center="Node">
+<DataItem Dimensions="23808 3" NumberType="Float" Precision="8" Format="HDF">snapshot_0003.hdf5:/PartType0/Coordinates</DataItem>
+</Attribute>
+<Attribute Name="Velocities" AttributeType="Vector" Center="Node">
+<DataItem Dimensions="23808 3" NumberType="Float" Precision="4" Format="HDF">snapshot_0003.hdf5:/PartType0/Velocities</DataItem>
+</Attribute>
+<Attribute Name="Masses" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0003.hdf5:/PartType0/Masses</DataItem>
+</Attribute>
+<Attribute Name="SmoothingLengths" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0003.hdf5:/PartType0/SmoothingLengths</DataItem>
+</Attribute>
+<Attribute Name="InternalEnergies" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0003.hdf5:/PartType0/InternalEnergies</DataItem>
+</Attribute>
+<Attribute Name="ParticleIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0003.hdf5:/PartType0/ParticleIDs</DataItem>
+</Attribute>
+<Attribute Name="Densities" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0003.hdf5:/PartType0/Densities</DataItem>
+</Attribute>
+<Attribute Name="Entropies" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0003.hdf5:/PartType0/Entropies</DataItem>
+</Attribute>
+<Attribute Name="MaterialIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="4" Format="HDF">snapshot_0003.hdf5:/PartType0/MaterialIDs</DataItem>
+</Attribute>
+<Attribute Name="Pressures" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0003.hdf5:/PartType0/Pressures</DataItem>
+</Attribute>
+<Attribute Name="Potentials" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Float" Precision="4" Format="HDF">snapshot_0003.hdf5:/PartType0/Potentials</DataItem>
+</Attribute>
+<Attribute Name="ProgenitorParticleIDs" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0003.hdf5:/PartType0/ProgenitorParticleIDs</DataItem>
+</Attribute>
+<Attribute Name="SplitCounts" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Char" Precision="1" Format="HDF">snapshot_0003.hdf5:/PartType0/SplitCounts</DataItem>
+</Attribute>
+<Attribute Name="SplitTrees" AttributeType="Scalar" Center="Node">
+<DataItem Dimensions="23808" NumberType="Int" Precision="8" Format="HDF">snapshot_0003.hdf5:/PartType0/SplitTrees</DataItem>
+</Attribute>
+</Grid> <!-- End of meta-data for parttype=Gas -->
+
+</Grid> <!-- End of meta-data for output=0003, time=600.000000 -->
+
+</Grid> <!-- timeSeries -->
+</Domain>
+</Xdmf>

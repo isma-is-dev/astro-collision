@@ -14,21 +14,21 @@ InitialConditions:
 # Parameters governing the time integration
 TimeIntegration:
     time_begin:     0                   # The starting time of the simulation (in internal units).
-    time_end:       72000               # The end time of the simulation (in internal units) ~20 hours
+    time_end:       43200               # The end time of the simulation (in internal units) ~20 hours
     dt_min:         0.000001            # The minimal time-step size of the simulation (in internal units).
-    dt_max:         1000                # The maximal time-step size of the simulation (in internal units).
+    dt_max:         50                  # The maximal time-step size of the simulation (in internal units).
 
 # Parameters governing the snapshots
 Snapshots:
-    subdir:             snapshots       # Sub-directory in which to write the snapshots. Defaults to "" (i.e. the directory where SWIFT is run).
-    basename:           impact          # Common part of the name of output files
+    subdir:             simulation_output       # Sub-directory in which to write the snapshots. Defaults to "" (i.e. the directory where SWIFT is run).
+    basename:           snapshot        # Common part of the name of output files
     time_first:         0               # Time of the first output (in internal units)
-    delta_time:         2000            # Time difference between consecutive outputs (in internal units)
+    delta_time:         300             # Time difference between consecutive outputs (in internal units)
 
 # Parameters governing the conserved quantities statistics
 Statistics:
     time_first: 0                       # Time of the first output (in internal units)
-    delta_time: 1000                    # Time between statistics output
+    delta_time: 300                     # Time between statistics output
 
 # Parameters controlling restarts
 Restarts:
@@ -56,5 +56,6 @@ Scheduler:
 
 # Parameters related to the equation of state
 EoS:
-    # Tillotson materials don't require table files
-    # Material ID 103 = Til_basalt
+    # Tillotson materials (parameters hardcoded in SWIFT, no table files needed)
+    planetary_use_Til_iron:     1   # Material ID 100 (core)
+    planetary_use_Til_granite:  1   # Material ID 101 (mantle)
